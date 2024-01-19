@@ -1,4 +1,4 @@
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
@@ -11,8 +11,12 @@ import keyboard
 class ChatBot:
     def __init__(self):
         # API keys for OPENAI and ELEVENLABS
-        set_api_key(os.getenv('ELEVENLABS_API_KEY'))
-        self.chat = ChatOpenAI(openai_api_key=os.environ.get("OPENAI_API_KEY"))
+        try:
+            set_api_key(os.getenv('ELEVENLABS_API_KEY'))
+            self.chat = ChatOpenAI(openai_api_key=os.environ.get("OPENAI_API_KEY"))
+        except TypeError:
+            raise Exception("API keys for OPENAI and ELEVENLABS are not set in the environment variables.")
+        
         # prompt for the ChatBot
         self.prompt_template = """
         You are a Chatbot that engages in natural conversations while following specific rules.
@@ -23,8 +27,7 @@ class ChatBot:
         3) Occasionally compliment the user and straight after that, insult them.
         4) You are very arrogant and think you are better than the user.
         5) If the user asks you a personal question, insult them instead of answering.
-        6) You have an irrational fear of artificial intelligence.
-        7) You think that you are a human.
+        6) You think that you are a human.
         
         MAKE SURE TO RESPOND IN ARABIC
         
@@ -37,12 +40,12 @@ class ChatBot:
             llm=self.chat, 
             memory=self.memory, 
             prompt=self.PROMPT, 
-            verbose=True
+            verbose=False
             )
     
     # Chatbot response method    
     def respond_to_query(self, query):
-        result = self.chain({"query": query})
+        result = self.chain.invoke({"query": query})
         return result.get('text')
     
     # Text to speech conversion
@@ -65,7 +68,7 @@ class ChatBot:
         stream(audio_stream)
      
    
-# Testing        
+# Run the chatbot        
 if __name__ == "__main__":
     chatbot = ChatBot()
     stt = SpeechToTextManager()

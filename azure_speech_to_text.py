@@ -78,7 +78,7 @@ class SpeechToTextManager:
         while not done:
             if keyboard.read_key() == stop_key:
                 print("\nEnding azure speech recognition\n")
-                time.sleep(1)
+                time.sleep(2)
                 self.azure_speechrecognizer.stop_continuous_recognition_async()
                 break
             
